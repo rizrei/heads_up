@@ -8,6 +8,7 @@ defmodule HeadsUpWeb.Router do
     plug :put_root_layout, html: {HeadsUpWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :snoop
   end
 
   pipeline :api do
@@ -20,10 +21,13 @@ defmodule HeadsUpWeb.Router do
     get "/", PageController, :home
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", HeadsUpWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", HeadsUpWeb do
+    pipe_through :api
+  end
+
+  def snoop(conn, _opts) do
+    assign(conn, :answer, ~w(Yes No Maybe) |> Enum.random())
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:heads_up, :dev_routes) do
