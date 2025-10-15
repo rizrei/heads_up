@@ -19,6 +19,7 @@ defmodule HeadsUpWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/tips", TipController, :index
   end
 
   scope "/api", HeadsUpWeb do
