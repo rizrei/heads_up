@@ -1,4 +1,4 @@
-defmodule HeadsUpWeb.EffortLive do
+defmodule HeadsUpWeb.EffortLive.Show do
   use HeadsUpWeb, :live_view
 
   def mount(_params, _session, socket) do
