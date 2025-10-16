@@ -19,6 +19,7 @@ defmodule HeadsUpWeb.Router do
 
     get "/", PageController, :home
     resources "/tips", TipController, only: [:index, :show]
+    live "/effort", EffortLive
   end
 
   scope "/api", HeadsUpWeb do
