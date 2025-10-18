@@ -7,7 +7,8 @@ defmodule HeadsUpWeb.EffortLive.Show do
     socket =
       assign(socket,
         responders: 0,
-        minutes_per_responder: 10
+        minutes_per_responder: 10,
+        page_title: "Effort"
       )
 
     {:ok, socket}

@@ -17,10 +17,11 @@ defmodule HeadsUpWeb.Router do
   scope "/", HeadsUpWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
-    resources "/tips", TipController, only: [:index, :show]
+    live "/", IncidentLive.Index, :index
     live "/effort", EffortLive.Show, :show
     live "/incidents", IncidentLive.Index, :index
+
+    resources "/tips", TipController, only: [:index, :show]
   end
 
   scope "/api", HeadsUpWeb do
