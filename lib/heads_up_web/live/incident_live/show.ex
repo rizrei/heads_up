@@ -45,6 +45,8 @@ defmodule HeadsUpWeb.IncidentLive.Show do
             <.urgent_incidents incidents={@urgent_incidents} />
           </div>
         </div>
+
+        <.back navigate={~p"/incidents"}>All Incidents</.back>
       </div>
     </Layouts.app>
     """
@@ -56,8 +58,10 @@ defmodule HeadsUpWeb.IncidentLive.Show do
       <h4>Urgent Incidents</h4>
       <ul :for={incident <- @incidents} class="incidents">
         <li>
-          <img src={incident.image_path} />
-          {incident.name}
+          <.link navigate={~p"/incidents/#{incident}"}>
+            <img src={incident.image_path} />
+            {incident.name}
+          </.link>
         </li>
       </ul>
     </section>
