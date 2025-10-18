@@ -1,9 +1,5 @@
-defmodule HeadsUp.Incident do
-  defstruct [:id, :name, :description, :priority, :status, :image_path]
-end
-
 defmodule HeadsUp.Incidents do
-  alias HeadsUp.Incident
+  alias HeadsUp.Incidents.Incident
 
   def list_incidents do
     [
