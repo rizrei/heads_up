@@ -20,6 +20,7 @@ defmodule HeadsUpWeb.Router do
     live "/", IncidentLive.Index, :index
     live "/effort", EffortLive.Show, :show
     live "/incidents", IncidentLive.Index, :index
+    live "/incidents/:id", IncidentLive.Show, :show
 
     resources "/tips", TipController, only: [:index, :show]
   end
