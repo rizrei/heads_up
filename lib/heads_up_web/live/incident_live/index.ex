@@ -8,7 +8,7 @@ defmodule HeadsUpWeb.IncidentLive.Index do
 
   def mount(_params, _session, socket) do
     socket =
-      stream(socket, :incidents, Incidents.list_incidents())
+      stream(socket, :incidents, Incidents.filter_incidents())
 
     {:ok, socket}
   end
