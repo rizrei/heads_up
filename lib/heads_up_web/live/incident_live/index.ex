@@ -7,21 +7,32 @@ defmodule HeadsUpWeb.IncidentLive.Index do
   alias HeadsUp.Incidents
 
   def mount(_params, _session, socket) do
-    socket =
-      stream(socket, :incidents, Incidents.filter_incidents())
-
     {:ok, socket}
+  end
+
+  def handle_params(params, _uri, socket) do
+    socket =
+      socket
+      |> stream(:incidents, Incidents.filter_incidents(params), reset: true)
+      |> assign(:form, to_form(params))
+
+    {:noreply, socket}
   end
 
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
       <div class="incident-index">
-        <.headline>
+        <.headline :if={false}>
           <.icon name="hero-trophy-mini" /> 25 Incidents Resolved This Month!
           <:tagline :let={emoji}>Thanks for pitching in. {emoji}</:tagline>
         </.headline>
+
+        <.filter_form form={@form} />
         <div class="incidents" id="incidents" phx-update="stream">
+          <div id="empty" class="no-results only:block hidden">
+            No incidents found. Try changing your filters.
+          </div>
           <.incident_card
             :for={{dom_id, incident} <- @streams.incidents}
             incident={incident}
@@ -30,6 +41,41 @@ defmodule HeadsUpWeb.IncidentLive.Index do
         </div>
       </div>
     </Layouts.app>
+    """
+  end
+
+  attr :form, :map, required: true
+
+  def filter_form(assigns) do
+    ~H"""
+    <.form for={@form} id="filter-form" phx-change="filter">
+      <.input
+        field={@form["q"]}
+        type="search"
+        placeholder="Search..."
+        autocomplete="off"
+        phx-debounce={500}
+      />
+      <.input
+        field={@form["status"]}
+        type="select"
+        options={[:pending, :resolved, :canceled]}
+        prompt="Status"
+      />
+
+      <.input
+        field={@form["sort_by"]}
+        type="select"
+        options={[
+          Name: "name",
+          "Priority: High to Low": "priority_desc",
+          "Priority: Low to High": "priority_asc"
+        ]}
+        prompt="Sort"
+      />
+
+      <.button patch={~p"/incidents"}>Reset</.button>
+    </.form>
     """
   end
 
@@ -51,5 +97,15 @@ defmodule HeadsUpWeb.IncidentLive.Index do
       </div>
     </.link>
     """
+  end
+
+  def handle_event("filter", params, socket) do
+    filtered_params =
+      params
+      |> Map.filter(fn {k, v} -> k in ~w(q status sort_by) and v not in [nil, ""] end)
+
+    socket = push_patch(socket, to: ~p"/incidents?#{filtered_params}")
+
+    {:noreply, socket}
   end
 end

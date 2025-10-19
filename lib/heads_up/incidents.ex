@@ -1,19 +1,15 @@
 defmodule HeadsUp.Incidents do
-  import Ecto.Query
+  use HeadsUp, :query
 
-  alias HeadsUp.Repo
   alias HeadsUp.Incidents.Incident
+  alias HeadsUp.Queries.Incidents.FilterIncidents
 
   def list_incidents do
     Repo.all(Incident)
   end
 
-  def filter_incidents do
-    Incident
-    |> where(status: :resolved)
-    |> where([i], ilike(i.name, "%in%"))
-    |> order_by(desc: :name)
-    |> Repo.all()
+  def filter_incidents(filters \\ %{}) do
+    FilterIncidents.call(filters)
   end
 
   def get_incident!(id) do
