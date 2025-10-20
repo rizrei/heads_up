@@ -105,7 +105,6 @@
 /* This file is for your main application CSS */
 
 @layer components {
-
   /* Tips */
 
   .tips h1 {
@@ -287,11 +286,11 @@
   }
 
   .incident-show .response section {
-    @apply relative flex items-center space-x-3 text-base text-gray-500;
+    @apply relative flex items-start space-x-3 text-base text-gray-500;
   }
 
   .incident-show .response section .avatar {
-    @apply h-10 w-10 rounded-full bg-sky-600 flex items-center justify-center text-white;
+    @apply h-10 w-10 rounded-full bg-sky-600 flex items-center justify-center text-white flex-shrink-0;
   }
 
   .incident-show .response section .username {
@@ -304,60 +303,8 @@
 
   /* AdminIncidentLive.Index */
 
-  .admin-index {
-    @apply flex;
-  }
-
-  .admin-index section {
-    @apply w-full;
-  }
-
-  .admin-index aside {
-    @apply ml-10 w-1/2;
-  }
-
-  .admin-index .x-mark {
-    @apply absolute top-2 right-2 -m-3 p-3 opacity-20 hover:opacity-40;
-  }
-
-  .admin-index table.incidents-table {
-    @apply mt-10 w-full;
-  }
-
-  .admin-index table.incidents-table thead {
-    @apply text-sm text-left leading-6 text-gray-500;
-  }
-
-  .admin-index table.incidents-table th {
-    @apply pb-4 pr-6 font-normal;
-  }
-
-  .admin-index table.incidents-table tbody {
-    @apply relative divide-y divide-gray-100 border-t border-gray-200 text-sm leading-6 text-gray-700;
-  }
-
-  .admin-index table.incidents-table tbody tr {
-    @apply hover:bg-gray-50;
-  }
-
-  .admin-index table.incidents-table tbody tr td:first-child {
-    @apply font-semibold text-gray-900;
-  }
-
-  .admin-index table.incidents-table td {
-    @apply py-5 pr-6;
-  }
-
-  .admin-index table.incidents-table td.action {
-    @apply p-0 py-4 text-center text-sm font-medium;
-  }
-
   .admin-index table a {
     @apply text-sky-600 hover:text-sky-800 focus:outline-none focus:underline transition ease-in-out duration-150;
-  }
-
-  .admin-index form {
-    @apply mt-4 space-y-6;
   }
 
   .admin-index .joke {
@@ -386,7 +333,7 @@
     @apply flex h-2 overflow-hidden text-base bg-sky-200 rounded-lg mb-4;
   }
 
-  #incident-form .entry .progress .bar>span {
+  #incident-form .entry .progress .bar > span {
     @apply shadow-md bg-sky-500;
     transition: width 1s ease;
   }
@@ -461,7 +408,7 @@
     @apply flex justify-center my-6 text-sm rounded-md p-3 font-medium text-red-800 border-2 border-dashed border-red-200;
   }
 
-  header a {
+  header :not(button) > a {
     @apply text-sky-600 font-medium hover:text-sky-800 focus:outline-none focus:underline transition ease-in-out duration-150;
   }
 
@@ -599,3 +546,4 @@
     transform: translateX(0);
   }
 }
+
