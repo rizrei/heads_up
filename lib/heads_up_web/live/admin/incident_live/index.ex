@@ -23,6 +23,9 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Index do
       <div class="admin-index">
         <.header>
           {@page_title}
+          <:actions>
+            <.button navigate={~p"/admin/incidents/new"}>New Incident</.button>
+          </:actions>
         </.header>
 
         <.table id="incidents" rows={@streams.incidents}>

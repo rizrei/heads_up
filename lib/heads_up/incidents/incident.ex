@@ -18,5 +18,7 @@ defmodule HeadsUp.Incidents.Incident do
     incident
     |> cast(attrs, [:name, :description, :priority, :status, :image_path])
     |> validate_required([:name, :description, :priority, :status, :image_path])
+    |> validate_length(:description, min: 10)
+    |> validate_number(:priority, greater_than_or_equal_to: 1, less_than_or_equal_to: 3)
   end
 end
