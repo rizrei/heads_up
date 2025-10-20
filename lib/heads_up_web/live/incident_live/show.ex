@@ -2,6 +2,7 @@ defmodule HeadsUpWeb.IncidentLive.Show do
   use HeadsUpWeb, :live_view
 
   alias HeadsUp.Incidents
+  alias Phoenix.LiveView.AsyncResult
 
   import HeadsUpWeb.BadgeComponents
 
@@ -16,7 +17,8 @@ defmodule HeadsUpWeb.IncidentLive.Show do
       socket
       |> assign(:incident, incident)
       |> assign(:page_title, incident.name)
-      |> assign(:urgent_incidents, Incidents.urgent_incidents(incident))
+      |> assign(:urgent_incidents, AsyncResult.loading())
+      |> start_async(:urgent_incidents_task, fn -> Incidents.urgent_incidents(incident) end)
 
     {:noreply, socket}
   end
@@ -56,15 +58,42 @@ defmodule HeadsUpWeb.IncidentLive.Show do
     ~H"""
     <section>
       <h4>Urgent Incidents</h4>
-      <ul :for={incident <- @incidents} class="incidents">
-        <li>
-          <.link navigate={~p"/incidents/#{incident}"}>
-            <img src={incident.image_path} />
-            {incident.name}
-          </.link>
-        </li>
-      </ul>
+      <.async_result :let={result} assign={@incidents}>
+        <:loading>
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </:loading>
+        <:failed :let={{:error, reason}}>
+          <div class="failed">{reason}</div>
+        </:failed>
+
+        <ul :for={incident <- result} class="incidents">
+          <li>
+            <.link navigate={~p"/incidents/#{incident}"}>
+              <img src={incident.image_path} />
+              {incident.name}
+            </.link>
+          </li>
+        </ul>
+      </.async_result>
     </section>
     """
+  end
+
+  def handle_async(:urgent_incidents_task, {:ok, raffles}, socket) do
+    # do anything extra here
+
+    result = AsyncResult.ok(socket.assigns.urgent_incidents, raffles)
+
+    {:noreply, assign(socket, :urgent_incidents, result)}
+  end
+
+  def handle_async(:urgent_incidents_task, {:exit, reason}, socket) do
+    # do anything extra
+
+    result = AsyncResult.failed(socket.assigns.urgent_incidents, {:exit, reason})
+
+    {:noreply, assign(socket, :urgent_incidents, result)}
   end
 end

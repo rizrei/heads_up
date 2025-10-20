@@ -17,6 +17,8 @@ defmodule HeadsUp.Incidents do
   end
 
   def urgent_incidents(incident) do
+    Process.sleep(:timer.seconds(2))
+
     Incident
     |> where([i], i.id != ^incident.id)
     |> order_by(:priority)
