@@ -9,6 +9,7 @@ defmodule HeadsUp.Queries.Incidents.FilterIncidents do
   def call(params) do
     Incident
     |> with_status(params["status"])
+    |> with_category(params["category"])
     |> search_by(params["q"])
     |> sort(params["sort_by"])
     |> Repo.all()
@@ -26,5 +27,19 @@ defmodule HeadsUp.Queries.Incidents.FilterIncidents do
   defp sort(query, "name"), do: order_by(query, :name)
   defp sort(query, "priority_desc"), do: order_by(query, desc: :priority)
   defp sort(query, "priority_asc"), do: order_by(query, :priority)
+
+  defp sort(query, "category") do
+    query |> join_category() |> order_by([_r, c], c.name)
+  end
+
   defp sort(query, _), do: query
+
+  defp with_category(query, id) when id in ["", nil], do: query
+
+  defp with_category(query, id) do
+    query |> join_category() |> where([_r, c], c.id == ^id)
+  end
+
+  defp join_category(query) when is_named_binding(query, :category) == true, do: query
+  defp join_category(query), do: join(query, :inner, [r], c in assoc(r, :category))
 end

@@ -21,6 +21,12 @@ defmodule HeadsUp.Categories do
     Repo.all(Category)
   end
 
+  def categories_names_and_ids do
+    Category
+    |> select([c], {c.name, c.id})
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single category.
 
