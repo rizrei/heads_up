@@ -18,4 +18,14 @@ defmodule HeadsUp.Admin.Incidents do
   def change_incident(%Incident{} = incident, attrs \\ %{}) do
     Incident.changeset(incident, attrs)
   end
+
+  def get_incident!(id) do
+    Incident |> Repo.get(id)
+  end
+
+  def update_incident(%Incident{} = incident, attrs) do
+    incident
+    |> Incident.changeset(attrs)
+    |> Repo.update()
+  end
 end

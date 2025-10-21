@@ -25,6 +25,7 @@ defmodule HeadsUpWeb.Router do
     scope "/admin" do
       live "/incidents", Admin.IncidentLive.Index, :index
       live "/incidents/new", Admin.IncidentLive.Form, :new
+      live "/incidents/:id/edit", Admin.IncidentLive.Form, :edit
     end
 
     resources "/tips", TipController, only: [:index, :show]

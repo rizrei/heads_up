@@ -8,13 +8,59 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Form do
     {:ok, socket}
   end
 
-  def handle_params(_params, _uri, socket) do
-    socket =
-      socket
-      |> assign(:page_title, "New Incident")
-      |> assign(:form, %Incident{} |> Incidents.change_incident() |> to_form())
+  def handle_params(params, _uri, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
 
-    {:noreply, socket}
+  defp apply_action(socket, :new, _params) do
+    socket
+    |> assign(:page_title, "New Incident")
+    |> assign(:form, %Incident{} |> Incidents.change_incident() |> to_form())
+  end
+
+  defp apply_action(socket, :edit, %{"id" => id}) do
+    incident = Incidents.get_incident!(id)
+
+    socket
+    |> assign(:page_title, "Edit Incident")
+    |> assign(:incident, incident)
+    |> assign(:form, Incidents.change_incident(incident) |> to_form())
+  end
+
+  def handle_event("validate", %{"incident" => incident_params}, socket) do
+    form = %Incident{} |> Incidents.change_incident(incident_params) |> to_form(action: :validate)
+
+    {:noreply, assign(socket, :form, form)}
+  end
+
+  def handle_event("save", %{"incident" => incident_params}, socket) do
+    {:noreply, save_incident(socket, socket.assigns.live_action, incident_params)}
+  end
+
+  defp save_incident(socket, :new, params) do
+    case Incidents.create_incident(params) do
+      {:ok, _raffle} ->
+        socket
+        |> put_flash(:info, "Incident created successfully!")
+        |> push_navigate(to: ~p"/admin/incidents")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        socket
+        |> assign(:form, to_form(changeset))
+    end
+  end
+
+  defp save_incident(socket, :edit, params) do
+    case Incidents.update_incident(socket.assigns.incident, params) do
+      {:ok, _raffle} ->
+        socket
+        |> put_flash(:info, "Incident updated successfully!")
+        |> push_navigate(to: ~p"/admin/incidents")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        socket
+        |> assign(:form, to_form(changeset))
+    end
   end
 
   def render(assigns) do
@@ -58,27 +104,5 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Form do
       <.button navigate={~p"/admin/incidents"}>Back</.button>
     </Layouts.app>
     """
-  end
-
-  def handle_event("validate", %{"incident" => incident_params}, socket) do
-    form = %Incident{} |> Incidents.change_incident(incident_params) |> to_form(action: :validate)
-
-    {:noreply, assign(socket, :form, form)}
-  end
-
-  def handle_event("save", %{"incident" => incident_params}, socket) do
-    socket =
-      case Incidents.create_incident(incident_params) do
-        {:ok, _raffle} ->
-          socket
-          |> put_flash(:info, "Incident created successfully!")
-          |> push_navigate(to: ~p"/admin/incidents")
-
-        {:error, %Ecto.Changeset{} = changeset} ->
-          socket
-          |> assign(:form, to_form(changeset))
-      end
-
-    {:noreply, socket}
   end
 end
