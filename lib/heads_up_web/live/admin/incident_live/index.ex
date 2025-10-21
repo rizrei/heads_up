@@ -3,6 +3,7 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Index do
 
   alias HeadsUp.Admin.Incidents
   import HeadsUpWeb.BadgeComponents
+  import HeadsUpWeb.JSComponents
 
   def mount(_params, _session, socket) do
     {:ok, socket}
@@ -44,7 +45,11 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Index do
           </:actions>
         </.header>
 
-        <.table id="incidents" rows={@streams.incidents}>
+        <.table
+          id="incidents"
+          rows={@streams.incidents}
+          row_click={fn {_, incidents} -> JS.navigate(~p"/incidents/#{incidents}") end}
+        >
           <:col :let={{_dom_id, incident}} label="Name">
             <.link navigate={~p"/incidents/#{incident}"}>{incident.name}</.link>
           </:col>
@@ -57,8 +62,8 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Index do
             <.link navigate={~p"/admin/incidents/#{incident}/edit"}>Edit</.link>
           </:action>
 
-          <:action :let={{_dom_id, incident}}>
-            <.link phx-click="delete" phx-value-id={incident.id} data-confirm="Are you shure?">
+          <:action :let={{dom_id, incident}}>
+            <.link phx-click={delete_and_hide(dom_id, incident)} data-confirm="Are you shure?">
               <.icon name="hero-trash" class="h-4 w-4" />
             </.link>
           </:action>
