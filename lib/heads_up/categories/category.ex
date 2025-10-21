@@ -7,6 +7,8 @@ defmodule HeadsUp.Categories.Category do
     field :name, :string
     field :slug, :string
 
+    has_many :incidents, HeadsUp.Incidents.Incident, on_delete: :nilify_all
+
     timestamps(type: :utc_datetime)
   end
 

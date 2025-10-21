@@ -24,6 +24,19 @@ defmodule HeadsUpWeb.CategoryLive.Show do
         <:item title="Name">{@category.name}</:item>
         <:item title="Slug">{@category.slug}</:item>
       </.list>
+
+      <section class="mt-12">
+        <h4>Incidents</h4>
+
+        <ul :for={incident <- @category.incidents} class="incidents">
+          <li>
+            <.link navigate={~p"/incidents/#{incident}"}>
+              <img src={incident.image_path} />
+              {incident.name}
+            </.link>
+          </li>
+        </ul>
+      </section>
     </Layouts.app>
     """
   end
@@ -33,6 +46,6 @@ defmodule HeadsUpWeb.CategoryLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show Category")
-     |> assign(:category, Categories.get_category!(id))}
+     |> assign(:category, Categories.get_category_with_incidents!(id))}
   end
 end

@@ -8,12 +8,16 @@ defmodule HeadsUp.Incidents do
     Repo.all(Incident)
   end
 
-  def filter_incidents(filters \\ %{}) do
-    FilterIncidents.call(filters)
+  def filter_incidents_with_category(filters \\ %{}) do
+    FilterIncidents.call(filters) |> Repo.preload(:category)
   end
 
   def get_incident!(id) do
     Repo.get!(Incident, id)
+  end
+
+  def get_incident_with_category!(id) do
+    id |> get_incident!() |> Repo.preload(:category)
   end
 
   def urgent_incidents(incident) do

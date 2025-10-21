@@ -1,6 +1,7 @@
 defmodule HeadsUpWeb.Admin.IncidentLive.Form do
   use HeadsUpWeb, :live_view
 
+  alias HeadsUp.Admin.Categories
   alias HeadsUp.Admin.Incidents
   alias HeadsUp.Incidents.Incident
 
@@ -9,7 +10,12 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Form do
   end
 
   def handle_params(params, _uri, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    socket =
+      socket
+      |> assign(:category_options, Categories.categories_names_and_ids())
+      |> apply_action(socket.assigns.live_action, params)
+
+    {:noreply, socket}
   end
 
   defp apply_action(socket, :new, _params) do
@@ -94,6 +100,13 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Form do
           prompt="Choose a status"
           options={[:pending, :resolved, :canceled]}
           required="true"
+        />
+        <.input
+          field={@form[:category_id]}
+          type="select"
+          label="Category"
+          prompt="Choose a Category"
+          options={@category_options}
         />
 
         <.input field={@form[:image_path]} label="Image Path" required="true" />

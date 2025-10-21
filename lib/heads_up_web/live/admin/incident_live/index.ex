@@ -5,35 +5,6 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Index do
   import HeadsUpWeb.BadgeComponents
   import HeadsUpWeb.JSComponents
 
-  def mount(_params, _session, socket) do
-    {:ok, socket}
-  end
-
-  def handle_params(_params, _uri, socket) do
-    socket =
-      socket
-      |> assign(:page_title, "Listing Incidents")
-      |> stream(:incidents, Incidents.list_incidents())
-
-    {:noreply, socket}
-  end
-
-  def handle_event("delete", %{"id" => id}, socket) do
-    socket =
-      case Incidents.get_incident!(id) |> Incidents.delete_incident() do
-        {:ok, incident} ->
-          socket
-          |> put_flash(:info, "incident deleted successfully!")
-          |> stream_delete(:incidents, incident)
-
-        {:error, %Ecto.Changeset{}} ->
-          socket
-          |> put_flash(:error, "Something went wrong!")
-      end
-
-    {:noreply, socket}
-  end
-
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
@@ -71,5 +42,34 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Index do
       </div>
     </Layouts.app>
     """
+  end
+
+  def mount(_params, _session, socket) do
+    {:ok, socket}
+  end
+
+  def handle_params(_params, _uri, socket) do
+    socket =
+      socket
+      |> assign(:page_title, "Listing Incidents")
+      |> stream(:incidents, Incidents.list_incidents())
+
+    {:noreply, socket}
+  end
+
+  def handle_event("delete", %{"id" => id}, socket) do
+    socket =
+      case Incidents.get_incident!(id) |> Incidents.delete_incident() do
+        {:ok, incident} ->
+          socket
+          |> put_flash(:info, "incident deleted successfully!")
+          |> stream_delete(:incidents, incident)
+
+        {:error, %Ecto.Changeset{}} ->
+          socket
+          |> put_flash(:error, "Something went wrong!")
+      end
+
+    {:noreply, socket}
   end
 end

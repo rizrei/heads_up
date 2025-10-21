@@ -6,19 +6,6 @@ defmodule HeadsUpWeb.IncidentLive.Index do
 
   alias HeadsUp.Incidents
 
-  def mount(_params, _session, socket) do
-    {:ok, socket}
-  end
-
-  def handle_params(params, _uri, socket) do
-    socket =
-      socket
-      |> stream(:incidents, Incidents.filter_incidents(params), reset: true)
-      |> assign(:form, to_form(params))
-
-    {:noreply, socket}
-  end
-
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
@@ -86,8 +73,13 @@ defmodule HeadsUpWeb.IncidentLive.Index do
     ~H"""
     <.link navigate={~p"/incidents/#{@incident}"} id={@id}>
       <div class="card">
+        <div :if={@incident.category} class="category">
+          <h3>{@incident.category.name}</h3>
+        </div>
+
         <img src={@incident.image_path} />
         <h2>{@incident.name}</h2>
+
         <div class="details">
           <.badge status={@incident.status} />
           <div class="priority">
@@ -97,6 +89,19 @@ defmodule HeadsUpWeb.IncidentLive.Index do
       </div>
     </.link>
     """
+  end
+
+  def mount(_params, _session, socket) do
+    {:ok, socket}
+  end
+
+  def handle_params(params, _uri, socket) do
+    socket =
+      socket
+      |> stream(:incidents, Incidents.filter_incidents_with_category(params), reset: true)
+      |> assign(:form, to_form(params))
+
+    {:noreply, socket}
   end
 
   def handle_event("filter", params, socket) do

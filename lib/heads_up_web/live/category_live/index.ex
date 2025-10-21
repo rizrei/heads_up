@@ -47,7 +47,7 @@ defmodule HeadsUpWeb.CategoryLive.Index do
     {:ok,
      socket
      |> assign(:page_title, "Listing Categories")
-     |> stream(:categories, list_categories())}
+     |> stream(:categories, Categories.list_categories())}
   end
 
   @impl true
@@ -56,9 +56,5 @@ defmodule HeadsUpWeb.CategoryLive.Index do
     {:ok, _} = Categories.delete_category(category)
 
     {:noreply, stream_delete(socket, :categories, category)}
-  end
-
-  defp list_categories() do
-    Categories.list_categories()
   end
 end

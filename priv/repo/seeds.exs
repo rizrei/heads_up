@@ -12,6 +12,23 @@
 
 alias HeadsUp.Repo
 alias HeadsUp.Incidents.Incident
+alias HeadsUp.Categories.Category
+
+animals =
+  %Category{name: "Animals & Wildlife", slug: "animals-and-wildlife"}
+  |> Repo.insert!()
+
+technology =
+  %Category{name: "Technology", slug: "technology"}
+  |> Repo.insert!()
+
+vehicles =
+  %Category{name: "Vehicles", slug: "vehicles"}
+  |> Repo.insert!()
+
+nature =
+  %Category{name: "Nature", slug: "nature"}
+  |> Repo.insert!()
 
 entries = [
   %Incident{
@@ -21,7 +38,8 @@ entries = [
     """,
     priority: 2,
     status: :pending,
-    image_path: "/images/lost-dog.jpg"
+    image_path: "/images/lost-dog.jpg",
+    category: animals
   },
   %Incident{
     name: "Tree Down On Roadway",
@@ -30,7 +48,8 @@ entries = [
     """,
     priority: 1,
     status: :canceled,
-    image_path: "/images/tree-down.jpg"
+    image_path: "/images/tree-down.jpg",
+    category: nature
   },
   %Incident{
     name: "Snowplow Stuck",
@@ -39,7 +58,8 @@ entries = [
     """,
     priority: 2,
     status: :pending,
-    image_path: "/images/snowplow-stuck.jpg"
+    image_path: "/images/snowplow-stuck.jpg",
+    category: vehicles
   },
   %Incident{
     name: "Website Down",
@@ -48,7 +68,8 @@ entries = [
     """,
     priority: 2,
     status: :resolved,
-    image_path: "/images/website-down.jpg"
+    image_path: "/images/website-down.jpg",
+    category: technology
   },
   %Incident{
     name: "Bear In The Trash",
@@ -57,7 +78,8 @@ entries = [
     """,
     priority: 1,
     status: :canceled,
-    image_path: "/images/bear-in-trash.jpg"
+    image_path: "/images/bear-in-trash.jpg",
+    category: animals
   },
   %Incident{
     name: "Overactive Pumpkin Patch",
@@ -66,7 +88,8 @@ entries = [
     """,
     priority: 2,
     status: :resolved,
-    image_path: "/images/pumpkin-patch.jpg"
+    image_path: "/images/pumpkin-patch.jpg",
+    category: nature
   },
   %Incident{
     name: "Moose On The Loose",
@@ -75,7 +98,8 @@ entries = [
     """,
     priority: 3,
     status: :pending,
-    image_path: "/images/moose-on-loose.jpg"
+    image_path: "/images/moose-on-loose.jpg",
+    category: animals
   },
   %Incident{
     name: "Flat Tire",
@@ -84,7 +108,8 @@ entries = [
     """,
     priority: 1,
     status: :resolved,
-    image_path: "/images/flat-tire.jpg"
+    image_path: "/images/flat-tire.jpg",
+    category: vehicles
   },
   %Incident{
     name: "Cat Stuck In Tree",
@@ -93,7 +118,8 @@ entries = [
     """,
     priority: 3,
     status: :resolved,
-    image_path: "/images/cat-in-tree.jpg"
+    image_path: "/images/cat-in-tree.jpg",
+    category: animals
   },
   %Incident{
     name: "Annoying Drone",
@@ -102,7 +128,8 @@ entries = [
     """,
     priority: 3,
     status: :pending,
-    image_path: "/images/annoying-drone.jpg"
+    image_path: "/images/annoying-drone.jpg",
+    category: technology
   },
   %Incident{
     name: "Washed-Out Trail",
@@ -111,7 +138,8 @@ entries = [
     """,
     priority: 3,
     status: :pending,
-    image_path: "/images/washed-out-trail.jpg"
+    image_path: "/images/washed-out-trail.jpg",
+    category: nature
   },
   %Incident{
     name: "Suspicious Vehicle",
@@ -120,7 +148,8 @@ entries = [
     """,
     priority: 3,
     status: :canceled,
-    image_path: "/images/suspicious-vehicle.jpg"
+    image_path: "/images/suspicious-vehicle.jpg",
+    category: vehicles
   }
 ]
 
