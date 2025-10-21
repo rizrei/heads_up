@@ -22,6 +22,11 @@ defmodule HeadsUpWeb.Router do
     live "/incidents", IncidentLive.Index, :index
     live "/incidents/:id", IncidentLive.Show, :show
 
+    live "/categories", CategoryLive.Index, :index
+    live "/categories/new", CategoryLive.Form, :new
+    live "/categories/:id", CategoryLive.Show, :show
+    live "/categories/:id/edit", CategoryLive.Form, :edit
+
     scope "/admin" do
       live "/incidents", Admin.IncidentLive.Index, :index
       live "/incidents/new", Admin.IncidentLive.Form, :new

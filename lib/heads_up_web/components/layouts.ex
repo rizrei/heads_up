@@ -44,6 +44,7 @@ defmodule HeadsUpWeb.Layouts do
       <div class="flex-none">
         <ul class="flex flex-column px-1 space-x-4 items-center">
           <li><.link navigate={~p"/incidents"}>Incidents</.link></li>
+          <li><.link navigate={~p"/categories"}>Categories</.link></li>
           <li><.link navigate={~p"/effort"}>Effort</.link></li>
           <li><.link navigate={~p"/admin/incidents"}>Admin</.link></li>
           <li><.theme_toggle /></li>
