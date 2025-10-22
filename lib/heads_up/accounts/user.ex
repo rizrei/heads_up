@@ -6,6 +6,7 @@ defmodule HeadsUp.Accounts.User do
   @foreign_key_type :binary_id
   schema "users" do
     field :email, :string
+    field :name, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
@@ -25,6 +26,13 @@ defmodule HeadsUp.Accounts.User do
       uniqueness of the email, useful when displaying live validations.
       Defaults to `true`.
   """
+  def register_changeset(user, attrs, opts \\ []) do
+    user
+    |> cast(attrs, [:email, :name])
+    |> validate_email(opts)
+    |> validate_name()
+  end
+
   def email_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:email])
@@ -56,6 +64,14 @@ defmodule HeadsUp.Accounts.User do
     else
       changeset
     end
+  end
+
+  defp validate_name(changeset) do
+    changeset
+    |> validate_required([:name])
+    |> validate_length(:name, min: 3, max: 25)
+    |> unsafe_validate_unique(:name, HeadsUp.Repo)
+    |> unique_constraint(:name)
   end
 
   @doc """
