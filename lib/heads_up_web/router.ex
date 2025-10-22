@@ -25,6 +25,12 @@ defmodule HeadsUpWeb.Router do
     live "/incidents", IncidentLive.Index, :index
     live "/incidents/:id", IncidentLive.Show, :show
 
+    resources "/tips", TipController, only: [:index, :show]
+  end
+
+  scope "/", HeadsUpWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
     live "/categories", CategoryLive.Index, :index
     live "/categories/new", CategoryLive.Form, :new
     live "/categories/:id", CategoryLive.Show, :show
@@ -35,8 +41,6 @@ defmodule HeadsUpWeb.Router do
       live "/incidents/new", Admin.IncidentLive.Form, :new
       live "/incidents/:id/edit", Admin.IncidentLive.Form, :edit
     end
-
-    resources "/tips", TipController, only: [:index, :show]
   end
 
   scope "/api", HeadsUpWeb.Api do

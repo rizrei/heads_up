@@ -5,6 +5,8 @@ defmodule HeadsUpWeb.Admin.IncidentLive.Form do
   alias HeadsUp.Admin.Incidents
   alias HeadsUp.Incidents.Incident
 
+  on_mount {HeadsUpWeb.UserAuth, :require_authenticated}
+
   def mount(_params, _session, socket) do
     {:ok, socket}
   end
