@@ -9,8 +9,14 @@ defmodule HeadsUp.Admin.Incidents do
     |> Repo.all()
   end
 
-  def get_incident!(id) do
-    Incident |> Repo.get(id)
+  def get_incident!(id), do: Repo.get(Incident, id)
+
+  def fetch_incident(id), do: fetch(id, &get_incident!/1)
+
+  def get_incidents_by_category_id(category_id) do
+    Incident
+    |> where([i], i.category_id == ^category_id)
+    |> Repo.all()
   end
 
   def create_incident(attrs) do
@@ -31,5 +37,11 @@ defmodule HeadsUp.Admin.Incidents do
 
   def delete_incident(%Incident{} = incident) do
     Repo.delete(incident)
+  end
+
+  defp fetch(attr, f) do
+    f.(attr) |> then(&{:ok, &1})
+  rescue
+    Ecto.NoResultsError -> {:error, :not_found}
   end
 end

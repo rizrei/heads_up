@@ -36,8 +36,12 @@ defmodule HeadsUpWeb.Router do
     resources "/tips", TipController, only: [:index, :show]
   end
 
-  scope "/api", HeadsUpWeb do
+  scope "/api", HeadsUpWeb.Api do
     pipe_through :api
+
+    get "/categories/:category_id/incidents", IncidentController, :index
+
+    resources "/incidents", IncidentController, only: [:index, :show, :create]
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

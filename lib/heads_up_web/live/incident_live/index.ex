@@ -113,7 +113,7 @@ defmodule HeadsUpWeb.IncidentLive.Index do
   def handle_params(params, _uri, socket) do
     socket =
       socket
-      |> stream(:incidents, Incidents.filter_incidents_with_category(params), reset: true)
+      |> stream(:incidents, Incidents.filter_incidents(params), reset: true)
       |> assign(:form, to_form(params))
 
     {:noreply, socket}
