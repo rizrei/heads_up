@@ -7,14 +7,10 @@ defmodule HeadsUpWeb.CategoryLiveTest do
   @create_attrs %{name: "some name", slug: "some slug"}
   @update_attrs %{name: "some updated name", slug: "some updated slug"}
   @invalid_attrs %{name: nil, slug: nil}
-  defp create_category(_) do
-    category = category_fixture()
-
-    %{category: category}
-  end
+  defp create_category(_), do: %{category: category_fixture()}
 
   describe "Index" do
-    setup [:create_category]
+    setup [:register_and_log_in_admin, :create_category]
 
     test "lists all categories", %{conn: conn, category: category} do
       {:ok, _index_live, html} = live(conn, ~p"/categories")
@@ -84,7 +80,7 @@ defmodule HeadsUpWeb.CategoryLiveTest do
   end
 
   describe "Show" do
-    setup [:create_category]
+    setup [:register_and_log_in_admin, :create_category]
 
     test "displays category", %{conn: conn, category: category} do
       {:ok, _show_live, html} = live(conn, ~p"/categories/#{category}")

@@ -29,17 +29,23 @@ defmodule HeadsUpWeb.Router do
   end
 
   scope "/", HeadsUpWeb do
-    pipe_through [:browser, :require_authenticated_user]
+    pipe_through [:browser, :require_authenticated_user, :require_admin_user]
 
-    live "/categories", CategoryLive.Index, :index
-    live "/categories/new", CategoryLive.Form, :new
-    live "/categories/:id", CategoryLive.Show, :show
-    live "/categories/:id/edit", CategoryLive.Form, :edit
+    live_session :admin,
+      on_mount: [
+        {HeadsUpWeb.UserAuth, :require_authenticated},
+        {HeadsUpWeb.UserAuth, :require_admin}
+      ] do
+      live "/categories", CategoryLive.Index, :index
+      live "/categories/new", CategoryLive.Form, :new
+      live "/categories/:id", CategoryLive.Show, :show
+      live "/categories/:id/edit", CategoryLive.Form, :edit
 
-    scope "/admin" do
-      live "/incidents", Admin.IncidentLive.Index, :index
-      live "/incidents/new", Admin.IncidentLive.Form, :new
-      live "/incidents/:id/edit", Admin.IncidentLive.Form, :edit
+      scope "/admin" do
+        live "/incidents", Admin.IncidentLive.Index, :index
+        live "/incidents/new", Admin.IncidentLive.Form, :new
+        live "/incidents/:id/edit", Admin.IncidentLive.Form, :edit
+      end
     end
   end
 

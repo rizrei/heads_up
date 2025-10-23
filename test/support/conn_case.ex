@@ -56,6 +56,21 @@ defmodule HeadsUpWeb.ConnCase do
     %{conn: log_in_user(conn, user, opts), user: user, scope: scope}
   end
 
+  def register_and_log_in_admin(%{conn: conn} = context) do
+    user = HeadsUp.AccountsFixtures.admin_fixture()
+
+    scope = HeadsUp.Accounts.Scope.for_user(user)
+
+    opts =
+      context
+      |> Map.take([:token_authenticated_at])
+      |> Enum.into([])
+
+    conn = log_in_user(conn, user, opts)
+
+    %{conn: conn, user: user, scope: scope}
+  end
+
   @doc """
   Logs the given `user` into the `conn`.
 

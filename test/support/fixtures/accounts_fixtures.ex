@@ -43,6 +43,8 @@ defmodule HeadsUp.AccountsFixtures do
     user
   end
 
+  def admin_fixture(attrs \\ %{}), do: attrs |> Map.put(:is_admin, true) |> user_fixture()
+
   def user_scope_fixture do
     user = user_fixture()
     user_scope_fixture(user)

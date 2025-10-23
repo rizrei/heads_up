@@ -25,8 +25,6 @@ defmodule HeadsUpWeb.CategoryLive.Form do
     """
   end
 
-  on_mount {HeadsUpWeb.UserAuth, :require_authenticated}
-
   @impl true
   def mount(params, _session, socket) do
     {:ok,
