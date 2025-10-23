@@ -13,6 +13,9 @@ defmodule HeadsUp.Accounts.User do
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
 
+    has_many :responses, HeadsUp.Responses.Response, on_delete: :delete_all
+    many_to_many :users, HeadsUp.Accounts.User, join_through: "responses"
+
     timestamps(type: :utc_datetime)
   end
 

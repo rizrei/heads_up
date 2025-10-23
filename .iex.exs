@@ -12,4 +12,7 @@ alias HeadsUp.Categories.Category
 alias HeadsUp.Accounts
 alias HeadsUp.Accounts.User
 
+alias HeadsUp.Responses
+alias HeadsUp.Responses.Response
+
 alias HeadsUp.Admin.Incidents, as: AdminIncidents

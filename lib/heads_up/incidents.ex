@@ -18,6 +18,12 @@ defmodule HeadsUp.Incidents do
     id |> get_incident!() |> Repo.preload(:category)
   end
 
+  def create_incident(attrs) do
+    %Incident{}
+    |> Incident.changeset(attrs)
+    |> Repo.insert()
+  end
+
   def urgent_incidents(incident) do
     Process.sleep(:timer.seconds(2))
 

@@ -2,25 +2,26 @@ defmodule HeadsUpWeb.IncidentLive.Show do
   use HeadsUpWeb, :live_view
 
   alias HeadsUp.Incidents
+  alias HeadsUp.Responses
+  alias HeadsUp.Responses.Response
   alias Phoenix.LiveView.AsyncResult
 
   import HeadsUpWeb.BadgeComponents
 
-  def mount(_params, _session, socket) do
-    {:ok, socket}
-  end
+  on_mount {HeadsUpWeb.UserAuth, :mount_current_scope}
 
-  def handle_params(%{"id" => id}, _uri, socket) do
+  def mount(%{"id" => id}, _session, socket) do
     incident = Incidents.get_incident_with_category!(id)
 
     socket =
       socket
       |> assign(:incident, incident)
+      |> assign(:form, response_form(socket.assigns))
       |> assign(:page_title, incident.name)
       |> assign(:urgent_incidents, AsyncResult.loading())
       |> start_async(:urgent_incidents_task, fn -> Incidents.urgent_incidents(incident) end)
 
-    {:noreply, socket}
+    {:ok, socket}
   end
 
   def render(assigns) do
@@ -45,7 +46,31 @@ defmodule HeadsUpWeb.IncidentLive.Show do
           </section>
         </div>
         <div class="activity">
-          <div class="left"></div>
+          <div class="left">
+            <%= if @current_scope do %>
+              <.form for={@form} id="response-form" phx-change="validate" phx-submit="save">
+                <.input
+                  field={@form[:status]}
+                  type="select"
+                  prompt="Choose a status"
+                  options={[:enroute, :arrived, :departed]}
+                />
+
+                <.input
+                  field={@form[:note]}
+                  type="textarea"
+                  placeholder="Note..."
+                  autofocus
+                />
+
+                <.button>Post</.button>
+              </.form>
+            <% else %>
+              <.button navigate={~p"/users/log-in"}>
+                Log In To Get A response
+              </.button>
+            <% end %>
+          </div>
           <div class="right">
             <.urgent_incidents incidents={@urgent_incidents} />
           </div>
@@ -98,5 +123,35 @@ defmodule HeadsUpWeb.IncidentLive.Show do
     result = AsyncResult.failed(socket.assigns.urgent_incidents, {:exit, reason})
 
     {:noreply, assign(socket, :urgent_incidents, result)}
+  end
+
+  def handle_event("validate", %{"response" => response_params}, socket) do
+    form =
+      socket.assigns.current_scope
+      |> Responses.change_response(%Response{}, response_params)
+      |> to_form(action: :validate)
+
+    {:noreply, assign(socket, form: form)}
+  end
+
+  def handle_event("save", %{"response" => response_params}, socket) do
+    case create_response(socket.assigns, response_params) do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> assign(form: response_form(socket.assigns))
+         |> put_flash(:info, "Response created successfully")}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, form: to_form(changeset))}
+    end
+  end
+
+  def response_form(%{current_scope: scope}) do
+    Responses.change_response(scope, %Response{}) |> to_form()
+  end
+
+  def create_response(%{incident: incident, current_scope: scope}, params) do
+    Responses.create_response(scope, params |> Map.merge(%{"incident_id" => incident.id}))
   end
 end
