@@ -3,33 +3,12 @@ defmodule HeadsUp.Responses do
   The Responses context.
   """
 
-  import Ecto.Query, warn: false
-  alias HeadsUp.Repo
+  use HeadsUp, :query
+  use HeadsUp, :pub_sub
 
+  alias HeadsUp.Incidents.Incident
   alias HeadsUp.Responses.Response
   alias HeadsUp.Accounts.Scope
-
-  @doc """
-  Subscribes to scoped notifications about any response changes.
-
-  The broadcasted messages match the pattern:
-
-    * {:created, %Response{}}
-    * {:updated, %Response{}}
-    * {:deleted, %Response{}}
-
-  """
-  def subscribe_responses(%Scope{} = scope) do
-    key = scope.user.id
-
-    Phoenix.PubSub.subscribe(HeadsUp.PubSub, "user:#{key}:responses")
-  end
-
-  defp broadcast_response(%Scope{} = scope, message) do
-    key = scope.user.id
-
-    Phoenix.PubSub.broadcast(HeadsUp.PubSub, "user:#{key}:responses", message)
-  end
 
   @doc """
   Returns the list of responses.
@@ -42,6 +21,13 @@ defmodule HeadsUp.Responses do
   """
   def list_responses(%Scope{} = scope) do
     Repo.all_by(Response, user_id: scope.user.id)
+  end
+
+  def list_responses_by_incident(%Incident{id: incident_id}) do
+    Response
+    |> order_by(desc: :inserted_at)
+    |> Repo.all_by(incident_id: incident_id)
+    |> Repo.preload([:user])
   end
 
   @doc """
@@ -75,11 +61,12 @@ defmodule HeadsUp.Responses do
 
   """
   def create_response(%Scope{} = scope, attrs) do
-    with {:ok, response = %Response{}} <-
+    with {:ok, %Response{} = response} <-
            %Response{}
            |> Response.changeset(attrs, scope)
            |> Repo.insert() do
-      broadcast_response(scope, {:created, response})
+      broadcast("incident:#{response.incident_id}", {:response_created, response})
+
       {:ok, response}
     end
   end
@@ -103,7 +90,6 @@ defmodule HeadsUp.Responses do
            response
            |> Response.changeset(attrs, scope)
            |> Repo.update() do
-      broadcast_response(scope, {:updated, response})
       {:ok, response}
     end
   end
@@ -125,7 +111,6 @@ defmodule HeadsUp.Responses do
 
     with {:ok, response = %Response{}} <-
            Repo.delete(response) do
-      broadcast_response(scope, {:deleted, response})
       {:ok, response}
     end
   end

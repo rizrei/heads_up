@@ -1,5 +1,6 @@
 defmodule HeadsUp.Admin.Incidents do
   use HeadsUp, :query
+  use HeadsUp, :pub_sub
 
   alias HeadsUp.Incidents.Incident
 
@@ -30,9 +31,13 @@ defmodule HeadsUp.Admin.Incidents do
   end
 
   def update_incident(%Incident{} = incident, attrs) do
-    incident
-    |> Incident.changeset(attrs)
-    |> Repo.update()
+    with {:ok, incident} <-
+           incident
+           |> Incident.changeset(attrs)
+           |> Repo.update() do
+      broadcast("incident:#{incident.id}", {:incident_updated, incident})
+      {:ok, incident}
+    end
   end
 
   def delete_incident(%Incident{} = incident) do

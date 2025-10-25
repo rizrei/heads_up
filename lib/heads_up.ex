@@ -15,6 +15,12 @@ defmodule HeadsUp do
     end
   end
 
+  def pub_sub do
+    quote do
+      import HeadsUp.EventBus.PubSub
+    end
+  end
+
   @doc """
   When used, dispatch to the appropriate query.
   """
