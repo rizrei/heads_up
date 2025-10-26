@@ -10,11 +10,14 @@ defmodule HeadsUpWeb.IncidentLive.Show do
 
   import HeadsUpWeb.BadgeComponents
   import HeadsUpWeb.ResponseComponent
+  import HeadsUpWeb.HeadlineComponents
 
   on_mount {HeadsUpWeb.UserAuth, :mount_current_scope}
 
   def mount(%{"id" => id}, _session, socket) do
-    incident = Incidents.get_incident_with_category!(id)
+    incident =
+      id |> Incidents.get_incident!() |> preload_incident_references()
+
     responses = Responses.list_responses_by_incident(incident)
 
     if connected?(socket), do: subscribe("incident:#{id}")
@@ -80,7 +83,7 @@ defmodule HeadsUpWeb.IncidentLive.Show do
   def handle_info({:incident_updated, incident}, socket) do
     {:noreply,
      socket
-     |> assign(:incident, incident |> Repo.preload(:category))}
+     |> assign(:incident, incident |> preload_incident_references())}
   end
 
   def response_form(%{current_scope: scope}) do
@@ -91,10 +94,21 @@ defmodule HeadsUpWeb.IncidentLive.Show do
     Responses.create_response(scope, params |> Map.merge(%{"incident_id" => incident.id}))
   end
 
+  defp preload_incident_references(incident) do
+    Repo.preload(incident, [:category, heroic_response: :user])
+  end
+
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
       <div class="incident-show">
+        <.headline :if={@incident.heroic_response}>
+          <.icon name="hero-sparkles-solid" /> Heroic Responder: {@incident.heroic_response.user.name}
+          <:tagline>
+            {@incident.heroic_response.note}
+          </:tagline>
+        </.headline>
+
         <div class="incident">
           <img src={@incident.image_path} />
           <section>

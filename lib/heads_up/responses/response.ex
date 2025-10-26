@@ -2,6 +2,7 @@ defmodule HeadsUp.Responses.Response do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
   @primary_key {:id, Ecto.UUID, autogenerate: true}
   @foreign_key_type :binary_id
   schema "responses" do

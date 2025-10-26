@@ -2,6 +2,7 @@ defmodule HeadsUp.Incidents.Incident do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
   @primary_key {:id, Ecto.UUID, autogenerate: true}
   @foreign_key_type :binary_id
   schema "incidents" do
@@ -12,6 +13,8 @@ defmodule HeadsUp.Incidents.Incident do
     field :image_path, :string, default: "/images/placeholder.jpg"
 
     belongs_to :category, HeadsUp.Categories.Category
+    belongs_to :heroic_response, HeadsUp.Responses.Response
+
     has_many :responses, HeadsUp.Responses.Response, on_delete: :delete_all
     many_to_many :users, HeadsUp.Accounts.User, join_through: "responses"
 
@@ -21,10 +24,18 @@ defmodule HeadsUp.Incidents.Incident do
   @doc false
   def changeset(incident, attrs) do
     incident
-    |> cast(attrs, [:name, :description, :priority, :status, :image_path, :category_id])
+    |> cast(attrs, [
+      :name,
+      :description,
+      :priority,
+      :status,
+      :image_path,
+      :category_id,
+      :heroic_response_id
+    ])
     |> validate_required([:name, :description, :priority, :status, :image_path])
     |> validate_length(:description, min: 10)
     |> validate_number(:priority, greater_than_or_equal_to: 1, less_than_or_equal_to: 3)
-    |> foreign_key_constraint(:category_id)
+    |> assoc_constraint(:category)
   end
 end
