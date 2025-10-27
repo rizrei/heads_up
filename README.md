@@ -1,18 +1,16 @@
 # HeadsUp
 
-To start your Phoenix server:
+HeadsUp is a small Phoenix (v1.8) web application that demonstrates a modern LiveView-first architecture with Ecto, Tailwind CSS, LiveView streams, and Swoosh-based mailer integrations. It is intended as a solid starter app and reference for building realtime UIs around incident/responder workflows.
 
-* Run `mix setup` to install and setup dependencies
-* Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Key Features
+- Phoenix LiveView-driven UI with server-rendered interactivity
+- Ecto + PostgreSQL (binary_id / uuid primary keys)
+- Live file uploads and live streams in pages (uses `phx-update="stream"`)
+- Email deliverability via Swoosh (uses `Req` as the HTTP client in production)
+- Tailwind CSS v4-based design with custom components
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-* Official website: https://www.phoenixframework.org/
-* Guides: https://hexdocs.pm/phoenix/overview.html
-* Docs: https://hexdocs.pm/phoenix
-* Forum: https://elixirforum.com/c/phoenix-forum
-* Source: https://github.com/phoenixframework/phoenix
+## Requirements
+- Elixir ~> 1.15 (configured in [`mix.exs`](mix.exs))
+- Erlang/OTP compatible with the chosen Elixir
+- PostgreSQL (development/test DB settings in [`config/dev.exs`](config/dev.exs) and [`config/test.exs`](config/test.exs))
+- Node tooling used by `esbuild` and `tailwind` (installed via Mix tasks / runners)
