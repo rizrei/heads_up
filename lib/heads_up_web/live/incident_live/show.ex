@@ -12,7 +12,6 @@ defmodule HeadsUpWeb.IncidentLive.Show do
   import HeadsUpWeb.ResponseComponent
   import HeadsUpWeb.HeadlineComponents
   import HeadsUpWeb.IncidentComponents
-  import HeadsUp.Incidents.UsersPresenceTracker
 
   on_mount {HeadsUpWeb.UserAuth, :mount_current_scope}
 
@@ -20,7 +19,7 @@ defmodule HeadsUpWeb.IncidentLive.Show do
     if connected?(socket) do
       subscribe("incident:#{id}")
 
-      if socket.assigns.current_scope.user do
+      if socket.assigns.current_scope do
         subscribe("updates:incident_watchers:#{id}")
         Presence.track_user("incident_watchers:#{id}", socket.assigns.current_scope.user)
       end
@@ -37,7 +36,7 @@ defmodule HeadsUpWeb.IncidentLive.Show do
       |> stream(:incident_watchers_list, Presence.list_users("incident_watchers:#{id}"))
       |> assign(:incident, incident)
       |> assign(:response_count, Enum.count(responses))
-      |> assign(:form, response_form(socket.assigns))
+      |> assign(:form, Responses.change_response(%Response{}) |> to_form())
       |> assign(:page_title, incident.name)
       |> assign(:urgent_incidents, AsyncResult.loading())
       |> start_async(:urgent_incidents_task, fn -> Incidents.urgent_incidents(incident) end)
@@ -63,8 +62,8 @@ defmodule HeadsUpWeb.IncidentLive.Show do
 
   def handle_event("validate", %{"response" => response_params}, socket) do
     form =
-      socket.assigns.current_scope
-      |> Responses.change_response(%Response{}, response_params)
+      %Response{}
+      |> Responses.change_response(response_params)
       |> to_form(action: :validate)
 
     {:noreply, assign(socket, form: form)}
@@ -75,7 +74,7 @@ defmodule HeadsUpWeb.IncidentLive.Show do
       {:ok, _} ->
         {:noreply,
          socket
-         |> assign(form: response_form(socket.assigns))
+         |> assign(:form, Responses.change_response(%Response{}) |> to_form())
          |> put_flash(:info, "Response created successfully")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -107,12 +106,6 @@ defmodule HeadsUpWeb.IncidentLive.Show do
       {:noreply, stream_insert(socket, :incident_watchers_list, presence)}
     end
   end
-
-  def assign_response_form(%{assigns: %{current_scope: %Scope{user: %User{}}} = scope} = socket) do
-    assign(socket, :form, Responses.change_response(scope, %Response{}) |> to_form())
-  end
-
-  def assign_response_form(socket), do: socket
 
   def create_response(%{incident: incident, current_scope: scope}, params) do
     Responses.create_response(scope, params |> Map.merge(%{"incident_id" => incident.id}))
@@ -172,7 +165,7 @@ defmodule HeadsUpWeb.IncidentLive.Show do
           <div class="right">
             <.urgent_incidents incidents={@urgent_incidents} />
             <.incident_watchers
-              :if={@current_scope.user}
+              :if={@current_scope}
               incident_watchers={@streams.incident_watchers_list}
             />
           </div>

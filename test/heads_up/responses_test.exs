@@ -97,8 +97,8 @@ defmodule HeadsUp.ResponsesTest do
       assert_raise MatchError, fn -> Responses.delete_response(other_scope, response) end
     end
 
-    test "change_response/2 returns a response changeset", %{scope: scope, response: response} do
-      assert %Ecto.Changeset{} = Responses.change_response(scope, response)
+    test "change_response/2 returns a response changeset", %{response: response} do
+      assert %Ecto.Changeset{} = Responses.change_response(response)
     end
   end
 end

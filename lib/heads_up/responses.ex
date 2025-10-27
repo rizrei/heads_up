@@ -62,8 +62,8 @@ defmodule HeadsUp.Responses do
   """
   def create_response(%Scope{} = scope, attrs) do
     with {:ok, %Response{} = response} <-
-           %Response{}
-           |> Response.changeset(attrs, scope)
+           %Response{user_id: scope.user.id}
+           |> Response.changeset(attrs)
            |> Repo.insert() do
       broadcast("incident:#{response.incident_id}", {:response_created, response})
 
@@ -88,7 +88,7 @@ defmodule HeadsUp.Responses do
 
     with {:ok, response = %Response{}} <-
            response
-           |> Response.changeset(attrs, scope)
+           |> Response.changeset(attrs)
            |> Repo.update() do
       {:ok, response}
     end
@@ -124,7 +124,7 @@ defmodule HeadsUp.Responses do
       %Ecto.Changeset{data: %Response{}}
 
   """
-  def change_response(%Scope{} = scope, %Response{} = response, attrs \\ %{}) do
-    Response.changeset(response, attrs, scope)
+  def change_response(%Response{} = response, attrs \\ %{}) do
+    Response.changeset(response, attrs)
   end
 end
