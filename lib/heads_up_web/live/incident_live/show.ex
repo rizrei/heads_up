@@ -7,25 +7,35 @@ defmodule HeadsUpWeb.IncidentLive.Show do
   alias HeadsUp.Responses
   alias HeadsUp.Responses.Response
   alias Phoenix.LiveView.AsyncResult
+  alias HeadsUpWeb.Presence
 
-  import HeadsUpWeb.BadgeComponents
   import HeadsUpWeb.ResponseComponent
   import HeadsUpWeb.HeadlineComponents
+  import HeadsUpWeb.IncidentComponents
+  import HeadsUp.Incidents.UsersPresenceTracker
 
   on_mount {HeadsUpWeb.UserAuth, :mount_current_scope}
 
   def mount(%{"id" => id}, _session, socket) do
+    if connected?(socket) do
+      subscribe("incident:#{id}")
+
+      if socket.assigns.current_scope.user do
+        subscribe("updates:incident_watchers:#{id}")
+        Presence.track_user("incident_watchers:#{id}", socket.assigns.current_scope.user)
+      end
+    end
+
     incident =
       id |> Incidents.get_incident!() |> preload_incident_references()
 
     responses = Responses.list_responses_by_incident(incident)
 
-    if connected?(socket), do: subscribe("incident:#{id}")
-
     socket =
       socket
-      |> assign(:incident, incident)
       |> stream(:responses, responses)
+      |> stream(:incident_watchers_list, Presence.list_users("incident_watchers:#{id}"))
+      |> assign(:incident, incident)
       |> assign(:response_count, Enum.count(responses))
       |> assign(:form, response_form(socket.assigns))
       |> assign(:page_title, incident.name)
@@ -86,9 +96,23 @@ defmodule HeadsUpWeb.IncidentLive.Show do
      |> assign(:incident, incident |> preload_incident_references())}
   end
 
-  def response_form(%{current_scope: scope}) do
-    Responses.change_response(scope, %Response{}) |> to_form()
+  def handle_info({:user_joined, presence}, socket) do
+    {:noreply, stream_insert(socket, :incident_watchers_list, presence)}
   end
+
+  def handle_info({:user_left, presence}, socket) do
+    if presence.metas == [] do
+      {:noreply, stream_delete(socket, :incident_watchers_list, presence)}
+    else
+      {:noreply, stream_insert(socket, :incident_watchers_list, presence)}
+    end
+  end
+
+  def assign_response_form(%{assigns: %{current_scope: %Scope{user: %User{}}} = scope} = socket) do
+    assign(socket, :form, Responses.change_response(scope, %Response{}) |> to_form())
+  end
+
+  def assign_response_form(socket), do: socket
 
   def create_response(%{incident: incident, current_scope: scope}, params) do
     Responses.create_response(scope, params |> Map.merge(%{"incident_id" => incident.id}))
@@ -109,26 +133,8 @@ defmodule HeadsUpWeb.IncidentLive.Show do
           </:tagline>
         </.headline>
 
-        <div class="incident">
-          <img src={@incident.image_path} />
-          <section>
-            <.badge status={@incident.status} />
+        <.incident incident={@incident} response_count={@response_count} />
 
-            <header>
-              <div>
-                <h2>{@incident.name}</h2>
-                <h3 :if={@incident.category}>{@incident.category.name}</h3>
-              </div>
-              <div class="priority">{@incident.priority}</div>
-            </header>
-            <div class="totals">
-              {@response_count} Responses
-            </div>
-            <div class="description">
-              {@incident.description}
-            </div>
-          </section>
-        </div>
         <div class="activity">
           <div class="left">
             <%= if @current_scope do %>
@@ -165,39 +171,16 @@ defmodule HeadsUpWeb.IncidentLive.Show do
           </div>
           <div class="right">
             <.urgent_incidents incidents={@urgent_incidents} />
+            <.incident_watchers
+              :if={@current_scope.user}
+              incident_watchers={@streams.incident_watchers_list}
+            />
           </div>
         </div>
 
         <.back navigate={~p"/incidents"}>All Incidents</.back>
       </div>
     </Layouts.app>
-    """
-  end
-
-  def urgent_incidents(assigns) do
-    ~H"""
-    <section>
-      <h4>Urgent Incidents</h4>
-      <.async_result :let={result} assign={@incidents}>
-        <:loading>
-          <div class="loading">
-            <div class="spinner"></div>
-          </div>
-        </:loading>
-        <:failed :let={{:error, reason}}>
-          <div class="failed">{reason}</div>
-        </:failed>
-
-        <ul :for={incident <- result} class="incidents">
-          <li>
-            <.link navigate={~p"/incidents/#{incident}"}>
-              <img src={incident.image_path} />
-              {incident.name}
-            </.link>
-          </li>
-        </ul>
-      </.async_result>
-    </section>
     """
   end
 end

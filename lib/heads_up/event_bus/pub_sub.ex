@@ -14,4 +14,5 @@ defmodule HeadsUp.EventBus.PubSub do
   def unsubscribe(topic), do: PubSub.unsubscribe(HeadsUp.PubSub, topic)
 
   def broadcast(topic, message), do: PubSub.broadcast(HeadsUp.PubSub, topic, message)
+  def local_broadcast(topic, message), do: PubSub.local_broadcast(HeadsUp.PubSub, topic, message)
 end
